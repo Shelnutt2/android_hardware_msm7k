@@ -65,15 +65,15 @@ AudioStreamOut* AudioHardware::openOutputStream(
     { // scope for the lock
         android::Mutex::Autolock lock(mLock);
 
-        // only one output stream allowed
+        AudioStreamOutQ5V2* out;
+       
         if (mOutput) {
-            if (status) {
-                *status = INVALID_OPERATION;
-            }
-            return 0;
-        }
-
-        AudioStreamOutQ5V2* out = new AudioStreamOutQ5V2();
+            // only one output stream allowed
+            out = mOutput;
+        } else {
+            // create new output stream
+           out = new AudioStreamOutMSM72xx();
+        }        
 
         status_t rc = out->set(this, devices, format, channels, sampleRate);
         if (rc) {
